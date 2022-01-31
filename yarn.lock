@@ -4619,7 +4619,7 @@ hardhat@^2.8.0:
     resolve "1.17.0"
     semver "^6.3.0"
     slash "^3.0.0"
-    solc "0.7.3"
+    solc "0.8.0"
     source-map-support "^0.5.13"
     stacktrace-parser "^0.1.10"
     "true-case-path" "^2.2.1"
@@ -7831,9 +7831,9 @@ snapdragon@^0.8.1:
     source-map-resolve "^0.5.0"
     use "^3.1.0"
 
-solc@0.7.3:
-  version "0.7.3"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.7.3.tgz#04646961bd867a744f63d2b4e3c0701ffdc7d78a"
+solc@0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.8.0.tgz#04646961bd867a744f63d2b4e3c0701ffdc7d78a"
   integrity sha512-GAsWNAjGzIDg7VxzP6mPjdurby3IkGCjQcM8GFYZT6RyaoUZKmMU6Y7YwG+tFGhv7dwZ8rmR4iwFDrrD99JwqA==
   dependencies:
     command-exists "^1.2.8"
@@ -7915,9 +7915,9 @@ source-map-url@^0.4.0:
   resolved "https://registry.yarnpkg.com/source-map-url/-/source-map-url-0.4.0.tgz#3e935d7ddd73631b97659956d55128e87b5084a3"
   integrity sha1-PpNdfd1zYxuXZZlW1VEo6HtQhKM=
 
-source-map@0.7.3:
-  version "0.7.3"
-  resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.7.3.tgz#5302f8169031735226544092e64981f751750383"
+source-map@0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.8.0.tgz#5302f8169031735226544092e64981f751750383"
   integrity sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==
 
 source-map@0.8.0-beta.0:
@@ -8180,7 +8180,7 @@ styled-jsx@5.0.0-beta.3:
     "@babel/types" "7.15.0"
     convert-source-map "1.7.0"
     loader-utils "1.2.3"
-    source-map "0.7.3"
+    source-map "0.8.0"
     string-hash "1.1.3"
     stylis "3.5.4"
     stylis-rule-sheet "0.0.10"
