@@ -1,0 +1,72 @@
+@font-face {
+    font-family: 'Avengeance Heroic Avenger';
+    src: url('AvengeanceHeroicAvengerItalic.woff2') format('woff2'),
+        url('AvengeanceHeroicAvengerItalic.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Avengeance Heroic Avenger';
+    src: url('AvengeanceHeroicAvengerBold.woff2') format('woff2'),
+        url('AvengeanceHeroicAvengerBold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Avengeance Heroic Avenger';
+    src: url('AvengeanceHeroicAvengerBoldItalic.woff2') format('woff2'),
+        url('AvengeanceHeroicAvengerBoldItalic.woff') format('woff');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Avengeance Heroic Avenger';
+    src: url('AvengeanceHeroicAvengerNormal.woff2') format('woff2'),
+        url('AvengeanceHeroicAvengerNormal.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Avengeance Heroic Avenger';
+    src: url('AvengeanceHeroicAvengerNormal.woff2') format('woff2'),
+        url('AvengeanceHeroicAvengerNormal.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Avengeance Heroic Avenger';
+    src: url('AvengeanceHeroicAvengerBold.woff2') format('woff2'),
+        url('AvengeanceHeroicAvengerBold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Avengeance Heroic Avenger';
+    src: url('AvengeanceHeroicAvengerBoldItalic.woff2') format('woff2'),
+        url('AvengeanceHeroicAvengerBoldItalic.woff') format('woff');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Avengeance Heroic Avenger';
+    src: url('AvengeanceHeroicAvengerItalic.woff2') format('woff2'),
+        url('AvengeanceHeroicAvengerItalic.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+

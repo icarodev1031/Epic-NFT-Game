@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'DEBUG FREE TRIAL';
+    src: url('DEBUGFREETRIAL.woff2') format('woff2'),
+        url('DEBUGFREETRIAL.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
