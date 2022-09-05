@@ -1,11 +1,8 @@
 
-import { useState } from 'react'
 import { ethers } from 'ethers'
-import { create as ipfsHttpClient } from 'ipfs-http-client'
-import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 import Web3Modal from 'web3modal'
-
-const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
 
 import {
 marketplaceAddress
@@ -13,96 +10,81 @@ marketplaceAddress
 
 import NFTMarketplace from '../artifacts/contracts/NFTMarketplace.sol/NFTMarketplace.json'
 
-export default function CreateItem() {
-const [fileUrl, setFileUrl] = useState(null)
-const [formInput, updateFormInput] = useState({ price: '', name: '', description: '' })
-const router = useRouter()
+export default function Home() {
+const [nfts, setNfts] = useState([])
+const [loadingState, setLoadingState] = useState('not-loaded')
+useEffect(() => {
+    loadNFTs()
+}, [])
+async function loadNFTs() {
+    /* create a generic provider and query for unsold market items */
+    const provider = new ethers.providers.JsonRpcProvider()
+    const contract = new ethers.Contract(marketplaceAddress, NFTMarketplace.abi, provider)
+    const data = await contract.fetchMarketItems()
 
-async function onChange(e) {
-    /* upload image to IPFS */
-    const file = e.target.files[0]
-    try {
-    const added = await client.add(
-        file,
-        {
-        progress: (prog) => console.log(`received: ${prog}`)
-        }
-    )
-    const url = `https://ipfs.infura.io/ipfs/${added.path}`
-    setFileUrl(url)
-    } catch (error) {
-    console.log('Error uploading file: ', error)
-    }  
+    /*
+    *  map over items returned from smart contract and format 
+    *  them as well as fetch their token metadata
+    */
+    const items = await Promise.all(data.map(async i => {
+    const tokenUri = await contract.tokenURI(i.tokenId)
+    const meta = await axios.get(tokenUri)
+    let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
+    let item = {
+        price,
+        tokenId: i.tokenId.toNumber(),
+        seller: i.seller,
+        owner: i.owner,
+        image: meta.data.image,
+        name: meta.data.name,
+        description: meta.data.description,
+    }
+    return item
+    }))
+    setNfts(items)
+    setLoadingState('loaded')
 }
-async function uploadToIPFS() {
-    const { name, description, price } = formInput
-    if (!name || !description || !price || !fileUrl) return
-    /* first, upload metadata to IPFS */
-    const data = JSON.stringify({
-    name, description, image: fileUrl
-    })
-    try {
-    const added = await client.add(data)
-    const url = `https://ipfs.infura.io/ipfs/${added.path}`
-    /* after metadata is uploaded to IPFS, return the URL to use it in the transaction */
-    return url
-    } catch (error) {
-    console.log('Error uploading file: ', error)
-    }  
-}
-
-async function listNFTForSale() {
-    const url = await uploadToIPFS()
+async function buyNft(nft) {
+    /* needs the user to sign the transaction, so will use Web3Provider and sign it */
     const web3Modal = new Web3Modal()
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
+    const contract = new ethers.Contract(marketplaceAddress, NFTMarketplace.abi, signer)
 
-    /* create the NFT */
-    const price = ethers.utils.parseUnits(formInput.price, 'ether')
-    let contract = new ethers.Contract(marketplaceAddress, NFTMarketplace.abi, signer)
-    let listingPrice = await contract.getListingPrice()
-    listingPrice = listingPrice.toString()
-    let transaction = await contract.createToken(url, price, { value: listingPrice })
+    /* user will be prompted to pay the asking proces to complete the transaction */
+    const price = ethers.utils.parseUnits(nft.price.toString(), 'ether')
+    const transaction = await contract.createMarketSale(nft.tokenId, {
+    value: price
+    })
     await transaction.wait()
-
-    router.push('/')
+    loadNFTs()
 }
-
+if (loadingState === 'loaded' && !nfts.length) return (<h1 className="px-20 py-10 text-3xl">No items in marketplace</h1>)
 return (
     <div className="flex justify-center">
-    <div className="w-1/2 flex flex-col pb-12">
-        <input 
-        placeholder="Asset Name"
-        className="mt-8 border rounded p-4"
-        onChange={e => updateFormInput({ ...formInput, name: e.target.value })}
-        />
-        <textarea
-        placeholder="Asset Description"
-        className="mt-2 border rounded p-4"
-        onChange={e => updateFormInput({ ...formInput, description: e.target.value })}
-        />
-        <input
-        placeholder="Asset Price in Eth"
-        className="mt-2 border rounded p-4"
-        onChange={e => updateFormInput({ ...formInput, price: e.target.value })}
-        />
-        <input
-        type="file"
-        name="Asset"
-        className="my-4"
-        onChange={onChange}
-        />
+    <div className="px-4" style={{ maxWidth: '1600px' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
         {
-        fileUrl && (
-            <img className="rounded mt-4" width="350" src={fileUrl} />
-        )
+            nfts.map((nft, i) => (
+            <div key={i} className="border shadow rounded-xl overflow-hidden">
+                <img src={nft.image} />
+                <div className="p-4">
+                <p style={{ height: '64px' }} className="text-2xl font-semibold">{nft.name}</p>
+                <div style={{ height: '70px', overflow: 'hidden' }}>
+                    <p className="text-gray-400">{nft.description}</p>
+                </div>
+                </div>
+                <div className="p-4 bg-black">
+                <p className="text-2xl font-bold text-white">{nft.price} ETH</p>
+                <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => buyNft(nft)}>Buy</button>
+                </div>
+            </div>
+            ))
         }
-        <button onClick={listNFTForSale} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
-        Create NFT
-        </button>
+        </div>
     </div>
     </div>
 )
 }
-    2022-08-30 19:35:19.268411
+    2022-09-05 18:53:05.889042
