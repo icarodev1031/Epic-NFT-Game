@@ -1,0 +1,1 @@
+0 12 * * * cd E:\epic-nft-game\nextjs-hardhat-tailwind-starter\pages && python3 commit_bot.py
