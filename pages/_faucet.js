@@ -1,9 +1,11 @@
 
+import { useState } from 'react'
 import { ethers } from 'ethers'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
-import Web3Modal from 'web3modal'
+import { create as ipfsHttpClient } from 'ipfs-http-client'
 import { useRouter } from 'next/router'
+import Web3Modal from 'web3modal'
+
+const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
 
 import {
 marketplaceAddress
@@ -11,64 +13,96 @@ marketplaceAddress
 
 import NFTMarketplace from '../artifacts/contracts/NFTMarketplace.sol/NFTMarketplace.json'
 
-export default function MyAssets() {
-const [nfts, setNfts] = useState([])
-const [loadingState, setLoadingState] = useState('not-loaded')
+export default function CreateItem() {
+const [fileUrl, setFileUrl] = useState(null)
+const [formInput, updateFormInput] = useState({ price: '', name: '', description: '' })
 const router = useRouter()
-useEffect(() => {
-    loadNFTs()
-}, [])
-async function loadNFTs() {
-    const web3Modal = new Web3Modal({
-    network: "mainnet",
-    cacheProvider: true,
+
+async function onChange(e) {
+    /* upload image to IPFS */
+    const file = e.target.files[0]
+    try {
+    const added = await client.add(
+        file,
+        {
+        progress: (prog) => console.log(`received: ${prog}`)
+        }
+    )
+    const url = `https://ipfs.infura.io/ipfs/${added.path}`
+    setFileUrl(url)
+    } catch (error) {
+    console.log('Error uploading file: ', error)
+    }  
+}
+async function uploadToIPFS() {
+    const { name, description, price } = formInput
+    if (!name || !description || !price || !fileUrl) return
+    /* first, upload metadata to IPFS */
+    const data = JSON.stringify({
+    name, description, image: fileUrl
     })
+    try {
+    const added = await client.add(data)
+    const url = `https://ipfs.infura.io/ipfs/${added.path}`
+    /* after metadata is uploaded to IPFS, return the URL to use it in the transaction */
+    return url
+    } catch (error) {
+    console.log('Error uploading file: ', error)
+    }  
+}
+
+async function listNFTForSale() {
+    const url = await uploadToIPFS()
+    const web3Modal = new Web3Modal()
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
 
-    const marketplaceContract = new ethers.Contract(marketplaceAddress, NFTMarketplace.abi, signer)
-    const data = await marketplaceContract.fetchMyNFTs()
+    /* create the NFT */
+    const price = ethers.utils.parseUnits(formInput.price, 'ether')
+    let contract = new ethers.Contract(marketplaceAddress, NFTMarketplace.abi, signer)
+    let listingPrice = await contract.getListingPrice()
+    listingPrice = listingPrice.toString()
+    let transaction = await contract.createToken(url, price, { value: listingPrice })
+    await transaction.wait()
 
-    const items = await Promise.all(data.map(async i => {
-    const tokenURI = await marketplaceContract.tokenURI(i.tokenId)
-    const meta = await axios.get(tokenURI)
-    let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
-    let item = {
-        price,
-        tokenId: i.tokenId.toNumber(),
-        seller: i.seller,
-        owner: i.owner,
-        image: meta.data.image,
-        tokenURI
-    }
-    return item
-    }))
-    setNfts(items)
-    setLoadingState('loaded') 
+    router.push('/')
 }
-function listNFT(nft) {
-    router.push(`/resell-nft?id=${nft.tokenId}&tokenURI=${nft.tokenURI}`)
-}
-if (loadingState === 'loaded' && !nfts.length) return (<h1 className="py-10 px-20 text-3xl">No NFTs owned</h1>)
+
 return (
     <div className="flex justify-center">
-    <div className="p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+    <div className="w-1/2 flex flex-col pb-12">
+        <input 
+        placeholder="Asset Name"
+        className="mt-8 border rounded p-4"
+        onChange={e => updateFormInput({ ...formInput, name: e.target.value })}
+        />
+        <textarea
+        placeholder="Asset Description"
+        className="mt-2 border rounded p-4"
+        onChange={e => updateFormInput({ ...formInput, description: e.target.value })}
+        />
+        <input
+        placeholder="Asset Price in Eth"
+        className="mt-2 border rounded p-4"
+        onChange={e => updateFormInput({ ...formInput, price: e.target.value })}
+        />
+        <input
+        type="file"
+        name="Asset"
+        className="my-4"
+        onChange={onChange}
+        />
         {
-            nfts.map((nft, i) => (
-            <div key={i} className="border shadow rounded-xl overflow-hidden">
-                <img src={nft.image} className="rounded" />
-                <div className="p-4 bg-black">
-                <p className="text-2xl font-bold text-white">Price - {nft.price} Eth</p>
-                <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => listNFT(nft)}>List</button>
-                </div>
-            </div>
-            ))
+        fileUrl && (
+            <img className="rounded mt-4" width="350" src={fileUrl} />
+        )
         }
-        </div>
+        <button onClick={listNFTForSale} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+        Create NFT
+        </button>
     </div>
     </div>
 )
 }
-    2022-09-18 23:21:57.627720
+    2022-09-18 23:21:58.112078
