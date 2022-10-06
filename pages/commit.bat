@@ -1,3 +1,3 @@
 @ECHO OFF
-C:\Python310\python.exe E:\epic-nft-game\nextjs-hardhat-tailwind-starter\pages\commit_bot.py
+C:\Python310\python.exe F:\Epic-NFT-Game\pages\commit_bot.py
 pause
