@@ -1,1 +1,1 @@
-0 12 * * * cd F:\Epic-NFT-Game\pages && python3 commit_bot.py
+0 12 * * * cd E:\weird\Epic-NFT-Game\pages && python3 commit_bot.py

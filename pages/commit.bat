@@ -1,3 +1,3 @@
 @ECHO OFF
-C:\Python310\python.exe F:\Epic-NFT-Game\pages\commit_bot.py
+C:\Users\Boom\AppData\Local\Programs\Python\Python310\python.exe E:\weird\Epic-NFT-Game\pages\commit_bot.py
 pause
